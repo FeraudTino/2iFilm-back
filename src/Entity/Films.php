@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\FilmsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FilmsRepository::class)]
@@ -29,6 +31,16 @@ class Films
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $image;
+
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'listefilm')]
+    private $users;
+
+    public function __construct()
+    {
+        $this->Films = new ArrayCollection();
+        $this->listefilms = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -94,4 +106,32 @@ class Films
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addListefilm($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeListefilm($this);
+        }
+
+        return $this;
+    }
+
 }

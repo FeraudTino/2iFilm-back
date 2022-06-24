@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -25,6 +27,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string')]
     private $password;
+
+    #[ORM\ManyToMany(targetEntity: films::class, inversedBy: 'users')]
+    private $listefilm;
+
+    public function __construct()
+    {
+        $this->User = new ArrayCollection();
+        $this->MesFilms = new ArrayCollection();
+        $this->listeFilms = new ArrayCollection();
+        $this->listefilm = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -95,4 +108,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
+
+    /**
+     * @return Collection<int, films>
+     */
+    public function getListefilm(): Collection
+    {
+        return $this->listefilm;
+    }
+
+    public function addListefilm(films $listefilm): self
+    {
+        if (!$this->listefilm->contains($listefilm)) {
+            $this->listefilm[] = $listefilm;
+        }
+
+        return $this;
+    }
+
+    public function removeListefilm(films $listefilm): self
+    {
+        $this->listefilm->removeElement($listefilm);
+
+        return $this;
+    }
+
+    
 }
